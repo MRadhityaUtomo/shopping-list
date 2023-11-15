@@ -25,6 +25,9 @@ from django.contrib.auth.decorators import login_required
 # Imports for cookies
 import datetime
 
+# Imports for json
+from django.http import JsonResponse
+import json
 
 @login_required(login_url='/login')
 # Create your views here.
@@ -154,3 +157,22 @@ def delete_product(request, id):
     product.delete()
     # Kembali ke halaman awal
     return HttpResponseRedirect(reverse('main:show_main'))
+
+@csrf_exempt
+def create_product_flutter(request):
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+
+        new_product = Product.objects.create(
+            user = request.user,
+            name = data["name"],
+            price = int(data["price"]),
+            description = data["description"]
+        )
+
+        new_product.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
